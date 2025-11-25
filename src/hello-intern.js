@@ -4,4 +4,4 @@
 console.log("-----------------------------------------");
 console.log("🚀 Hello staytuned ");
 console.log("-----------------------------------------");
-console.log("I am a App webloper");
+console.log("I am a App web devloper");
