@@ -1,12 +1,4 @@
 
-console.log("Day 1 Learning JavaScript Basics");
-// This is a simple JavaScript file to demonstrate basic syntax and logging to the console.
-
-
-
-
-//1. Hello World
-console.log("1. Hello World")
 
 console.log(`JavaScript programs can be inserted almost anywhere into an HTML document using the <script> tag.
 For instance:
