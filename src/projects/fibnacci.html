@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fibonacci Series</title>
+</head>
+<body>
+
+    <h2>Fibonacci Series Generator</h2>
+
+    <input id="num" type="number" placeholder="Enter number of terms">
+    <button onclick="generateFibo()">Generate</button>
+
+    <h3 id="result"></h3>
+
+    <script>
+        function generateFibo() {
+            let n = parseInt(document.getElementById("num").value);
+
+            let fibo = [0, 1];
+
+            for (let i = 2; i < n; i++) {
+                fibo[i] = fibo[i - 1] + fibo[i - 2];
+            }
+
+            document.getElementById("result").innerHTML = fibo.join(", ");
+        }
+    </script>
+
+</body>
+</html>
