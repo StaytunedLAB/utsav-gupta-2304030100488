@@ -1,95 +1,97 @@
 
 
-function  bankingsystem(account){
-    let  bal=parseInt(account.Finalbalance);
-    let  applied=[];
-    let rejected=[];
-
-
+function processAttendance(input) {
+    let summary = {
+        employeeId: input.employeeId,
+        date: input.date,
+        status: "",
+        totalWorkingMinutes: 0,
+        overtimeMinutes: 0,
+        note: "",
+        errorMessage: ""
+    };
 
     try {
-        if(isNaN(bal)  ){
-           
-            
-            throw new Error("Not  a number  or  missing")
-         
+       
+        if (!input.checkIn || !input.checkOut) {
+            summary.status = "incomplete";
+            summary.note = "Missing check-in or check-out time";
+            return summary;  
         }
-       if(account.transactions  && Array.isArray(account.transactions)){
-        account.transactions.forEach(trans=> {
-            try{
-                
-                const amt=parseInt(trans.amount)
 
-                if(amt<=0 || isNaN(amt) ){
-                    rejected.push({...trans,reason:"Inavalid  amount"})
-                     return
-                }
-                if(trans.type==="Deposit"){
-                    bal=bal+amt
-                    applied.push({...trans})
-                }
-                else  if(trans.type==="Withdraw"){
-                         if(bal<amt){
-                            rejected.push({...trans,reason:"Insuffcient  amount  Withdrawn"})
+      
+        let checkInTime = new Date(`${summary.date} ${input.checkIn}`);
+        let checkOutTime = new Date(`${summary.date} ${input.checkOut}`);
 
-                         }
-                         else{
-                            bal=bal-amt
-                            applied.push({...trans})
-                         }
-                }
-                else{
-                    rejected.push({ ...trans, reason: "Unknown transaction type" })
-          }
-                }
+      
+        if (isNaN(checkInTime) || isNaN(checkOutTime)) {
+            summary.status = "error";
+            summary.errorMessage = "Invalid time format";
+            summary.note = "Could not convert check-in or check-out time";
+            return summary;
+        }
 
-                
-           
-            catch{
-rejected.push({ ...trans, reason: "System error" });
+       
+        let breakMinutes = 0;
+
+        if (input.breakStart) {
+            if (input.breakEnd) {
+                let breakStart = new Date(`${summary.date} ${input.breakStart}`);
+                let breakEnd = new Date(`${summary.date} ${input.breakEnd}`);
+
+                if (!isNaN(breakStart) && !isNaN(breakEnd)) {
+                    breakMinutes = (breakEnd - breakStart) / (1000 * 60);
+                } else {
+                    breakMinutes = 30; 
+                }
+            } else {
+                breakMinutes = 30;
             }
         }
-);
-       }
-    else {
-      throw new Error("Transactions missing");
-    }
+
        
-        
-    } catch (error) {
-    console.log("System Error:", error.message);
-  } finally {
-    console.log("Bank account processing completed for:", account.accountHolder);
-  }
-        
-    return{
-    accountNumber: account.accountNumber,
-    accountHolder: account.accountHolder,
-    currency: account.currency,
-   
-    finalBalance: bal,
-    appliedTransactions: applied,
-    rejectedTransactions: rejected
-  };
+        let totalMinutes = (checkOutTime - checkInTime) / (1000 * 60) - breakMinutes;
 
+        if (totalMinutes < 0) {
 
+        summary.status = "invalid";
+        summary.note = "Negative working time detected";
+       summary.totalWorkingMinutes = 0;
+         return summary;
+
+        }
+
+   summary.totalWorkingMinutes = Math.max(0, Math.floor(totalMinutes));
+    summary.status = "complete";
+    summary.note = "Attendance calculated successfully";
+
+        
+            if (input.overtimeApproved === true && summary.totalWorkingMinutes > 480) {
+            summary.overtimeMinutes = summary.totalWorkingMinutes - 480;
+        }
+
+          } 
+          catch (err) {
+           summary.status = "error";
+           summary.errorMessage = err.message;
+          summary.note = "Unexpected error occurred";
+    } 
+    finally {
+         console.log("Attendance processed successfully");
+    }
+
+    return summary;
 }
 
-const account = {
-  accountNumber: "456465",
-  accountHolder: "Rahul  yadav",
- 
-  currency: "indian",
-  Finalbalance:"10000",
-  transactions: [
-    { type: "Deposit", amount: "5000" },
-    { type: "Withdraw", amount: "2000" },
-      { type: "Withdraw", amount: "20000" }, 
-    { type: "Deposit", amount: "-500" },   
-   
-       
-  ],
- 
+
+         const inputData = {
+    employeeId: "E101",
+    date: "09-12-2025",
+    checkIn: "11:00",
+    checkOut: "04:00",
+    breakStart: "01:00",
+    breakEnd: "02:00",
+    overtimeApproved: true
 };
 
-console.log(bankingsystem(account))
+console.log(processAttendance(inputData));
